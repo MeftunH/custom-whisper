@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify({
                     audio: base64Audio,
-                    language: languageSelect.value,
+                    language: languageSelect.value || 'tr',  // Türkçe varsayılan
                     model: modelSelect.value
                 }),
                 signal: controller.signal
@@ -374,4 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cancelAnimationFrame(animationFrame);
         }
     });
+    
+    // Varsayılan olarak Türkçe dili seç
+    languageSelect.value = 'tr';
 });

@@ -7,22 +7,29 @@ import whisper
 import tempfile
 import io
 from datetime import datetime
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__, static_folder='static')
 
 transcriber = None
 
 class WhisperTranscriber:
-    def __init__(self, model_name="tiny"):
+    def __init__(self, model_name="medium"):
         self.model_name = model_name
         self.model = None
         self.is_loaded = False
+        logging.debug(f"Loading model: {model_name}")
         self.load_model()
+        logging.debug("Model loaded successfully.")
         
     def load_model(self):
         if not self.is_loaded:
+            logging.debug("Loading Whisper model...")
             self.model = whisper.load_model(self.model_name)
             self.is_loaded = True
+            logging.debug("Whisper model loaded.")
             
     def transcribe_audio(self, audio_data, language=None):
         if not self.is_loaded:
@@ -33,30 +40,36 @@ class WhisperTranscriber:
             import array
             import struct
             
+            logging.debug("Preparing audio data for transcription...")
             rate = 16000
             
             audio_array = np.frombuffer(audio_data, dtype=np.uint8)
             audio_array = audio_array.astype(np.float32) / 255.0 - 0.5
             audio_array = whisper.pad_or_trim(audio_array)
             
-            mel = whisper.log_mel_spectrogram(audio_array).to(self.model.device)
-            
-            options = {}
-            if language:
-                options["language"] = language
+            logging.debug("Generating mel spectrogram...")
+            # Gelişmiş ses özellikleri için daha kesin ayarlar
+            options = {
+                "fp16": False,
+                "language": "tr",  # Kesinlikle Türkçe olarak ayarla
+                "task": "transcribe",
+                "beam_size": 5,     # Daha iyi sonuçlar için beam arama
+                "best_of": 5,       # En iyi sonuçları bulmak için
+                "temperature": 0,    # Sıfır sıcaklık - en yüksek güvenle tahmin
+                "suppress_tokens": "-1",  # Tokenları bastırmayı kapat
+                "condition_on_previous_text": False,  # Önceki metin şartını kapat
+                "initial_prompt": "Bu bir Türkçe ses kaydı transkriptidir."  # Bu önemli ipucu modele yardımcı olur
+            }
                 
-            if language == "tr":
-                options["language"] = "tr"
-                options["task"] = "transcribe"
-                
-            decode_options = whisper.DecodingOptions(**options)
-            result = whisper.decode(self.model, mel, decode_options)
+            logging.debug("Starting transcription process...")
+            result = self.model.transcribe(audio_array, **options)
+            logging.debug("Transcription completed.")
             
-            return result.text
+            return result["text"]
         except Exception as e:
             import traceback
-            print(f"Error in transcribe_audio: {str(e)}")
-            print(traceback.format_exc())
+            logging.error(f"Error in transcribe_audio: {str(e)}")
+            logging.error(traceback.format_exc())
             raise
 
 @app.route('/')
@@ -93,8 +106,8 @@ def transcribe():
         return jsonify({"text": text})
     except Exception as e:
         import traceback
-        print(f"Error in transcribe route: {str(e)}")
-        print(traceback.format_exc())
+        logging.error(f"Error in transcribe route: {str(e)}")
+        logging.error(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 
 @app.route('/models', methods=['GET'])
