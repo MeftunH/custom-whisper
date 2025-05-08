@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech to Text | Awards Edition</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+</head>
+<body>
+    <div class="noise-overlay"></div>
+    
+    <div class="gradient-blob blob-1"></div>
+    <div class="gradient-blob blob-2"></div>
+    <div class="gradient-blob blob-3"></div>
+    
+    <div class="container">
+        <header class="app-header">
+            <div class="logo">
+                <span class="whisper-logo">Whisper</span>
+                <span class="AI-logo">AI</span>
+            </div>
+            <div class="theme-toggle">
+                <i class="fas fa-moon"></i>
+            </div>
+        </header>
+        
+        <main class="app-content">
+            <div class="glass-panel control-panel">
+                <div class="control-row">
+                    <div class="select-wrapper">
+                        <label for="model-select">Model</label>
+                        <select id="model-select" class="glass-select">
+                            <option value="tiny" selected>Tiny (En Hızlı)</option>
+                            <option value="base">Base</option>
+                            <option value="small">Small (Yavaş)</option>
+                            <option value="medium">Medium (Çok Yavaş)</option>
+                        </select>
+                        <div class="select-arrow"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                    
+                    <div class="select-wrapper">
+                        <label for="language-select">Dil</label>
+                        <select id="language-select" class="glass-select">
+                            <option value="tr">Türkçe</option>
+                            <option value="en">English</option>
+                            <option value="de">Deutsch</option>
+                            <option value="fr">Français</option>
+                        </select>
+                        <div class="select-arrow"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                </div>
+                
+                <div class="record-container">
+                    <button id="record-button" class="record-button" disabled>
+                        <div class="button-inner">
+                            <i class="fas fa-microphone"></i>
+                            <div class="button-ripple"></div>
+                        </div>
+                        <span class="button-label">Konuşmaya Başla</span>
+                    </button>
+                    
+                    <div class="visualizer-container">
+                        <canvas id="visualizer-canvas"></canvas>
+                    </div>
+                </div>
+                
+                <div class="status-bar">
+                    <span id="status">Bağlanıyor...</span>
+                    <span style="color: red; font-size: 12px;">Not: Karşılaştığınız sorunlar için lütfen destek ekibimizle iletişime geçin.</span>
+                </div>
+            </div>
+            
+            <div class="glass-panel transcript-panel">
+                <div class="panel-header">
+                    <h2>Transkript</h2>
+                    <div class="actions">
+                        <button class="glass-button copy-button">
+                            <i class="fas fa-copy"></i> Kopyala
+                        </button>
+                        <button id="clear-button" class="glass-button">
+                            <i class="fas fa-trash"></i> Temizle
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="transcript-container">
+                    <div class="typing-indicator">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <lottie-player src="https://assets2.lottiefiles.com/packages/lf20_Uy4J6Z.json" background="transparent" speed="1" class="transcript-animation" loop autoplay></lottie-player>
+                    <div id="transcript" class="transcript"></div>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="app-footer">
+            <span>&copy; 2025 Whisper AI Transcription</span>
+            <div class="social-links">
+                <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </footer>
+    </div>
+    
+    <div class="custom-cursor"></div>
+    
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script>
+        document.addEventListener('mousemove', (e) => {
+            const cursor = document.querySelector('.custom-cursor');
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+        
+        const recordButton = document.getElementById('record-button');
+        
+        recordButton.addEventListener('mouseenter', () => {
+            const cursor = document.querySelector('.custom-cursor');
+            cursor.classList.add('expand');
+        });
+        
+        recordButton.addEventListener('mouseleave', () => {
+            const cursor = document.querySelector('.custom-cursor');
+            cursor.classList.remove('expand');
+        });
+    </script>
+</body>
+</html>

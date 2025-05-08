@@ -1,0 +1,7 @@
+openai-whisper
+pyaudio
+sounddevice
+numpy
+PyQt5
+PyQt5-Qt5
+PyQt5-sip
